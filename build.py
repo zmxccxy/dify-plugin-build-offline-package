@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build-offline-pkg.py —— 把一个现成的 Dify 插件 .difypkg 重打成内网离线安装包
+build.py —— 把一个现成的 Dify 插件 .difypkg 重打成内网离线安装包
 
 原理（适配 Dify 1.17.0 / dify-plugin-daemon 0.6.x）：
   1. 解压原始 .difypkg；
@@ -13,7 +13,7 @@ build-offline-pkg.py —— 把一个现成的 Dify 插件 .difypkg 重打成内
   5. 重新打包为 <原名>-<架构>-offline.difypkg 并校验。
 
 跨平台：macOS / Linux / Windows 通用（仅需 Python 3.8+ 与 pip）。
-日志：控制台 + 脚本同目录 build-offline-pkg.log；依赖下载失败逐条记录。
+日志：控制台 + 脚本同目录 build.log；依赖下载失败逐条记录。
 """
 
 import argparse
@@ -340,10 +340,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "示例:\n"
-            "  python build-offline-pkg.py                      # 自动识别同目录 .difypkg，打 arm64 离线包\n"
-            "  python build-offline-pkg.py --arch amd64 --pip-source tsinghua\n"
-            "  python build-offline-pkg.py --arch both --pip-source aliyun\n"
-            "  python build-offline-pkg.py --input /path/to/xx.difypkg --pip-index-url https://my.mirror/pypi/simple\n"
+            "  python build.py                      # 自动识别同目录 .difypkg，打 arm64 离线包\n"
+            "  python build.py --arch amd64 --pip-source tsinghua\n"
+            "  python build.py --arch both --pip-source aliyun\n"
+            "  python build.py --input /path/to/xx.difypkg --pip-index-url https://my.mirror/pypi/simple\n"
         ),
     )
     parser.add_argument("--input", help="原始 .difypkg 路径（缺省自动识别脚本同目录下非 offline 的 .difypkg）")
@@ -355,11 +355,11 @@ def main():
     parser.add_argument("--python-version", help="wheel 的 Python 版本（默认读 manifest 的 meta.runner.version，缺省 3.12）")
     parser.add_argument("--retries", type=int, default=3, help="每个下载动作的重试次数（默认 3）")
     parser.add_argument("--no-verify", action="store_true", help="跳过 uv 离线解析验证")
-    parser.add_argument("--log-file", help="日志文件路径（默认脚本同目录 build-offline-pkg.log）")
+    parser.add_argument("--log-file", help="日志文件路径（默认脚本同目录 build.log）")
     parser.add_argument("--verbose", action="store_true", help="控制台输出调试级日志（日志文件始终记录全部）")
     args = parser.parse_args()
 
-    log_file = Path(args.log_file).expanduser() if args.log_file else SCRIPT_DIR / "build-offline-pkg.log"
+    log_file = Path(args.log_file).expanduser() if args.log_file else SCRIPT_DIR / "build.log"
     setup_logging(log_file, args.verbose)
 
     LOG.info("=" * 70)

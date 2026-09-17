@@ -38,7 +38,7 @@ wheel 内置进包内，守护进程全部从本地文件安装——**安装时
 cp ~/Downloads/openai_api_compatible-0.0.65.difypkg .
 
 # 2. 打包（默认 arm64 + 官方源）
-python3 build-offline-pkg.py
+python3 build.py
 
 # 3. 产物
 #    openai_api_compatible-0.0.65-arm64-offline.difypkg
@@ -48,7 +48,7 @@ python3 build-offline-pkg.py
 Windows：
 
 ```powershell
-python build-offline-pkg.py --arch amd64 --pip-source tsinghua
+python build.py --arch amd64 --pip-source tsinghua
 ```
 
 装到内网服务器前，先看[内网服务器安装注意](#内网服务器安装注意)（签名校验 / 包大小 / nginx 限制）。
@@ -56,7 +56,7 @@ python build-offline-pkg.py --arch amd64 --pip-source tsinghua
 ## 参数
 
 ```
-python3 build-offline-pkg.py [options]
+python3 build.py [options]
 ```
 
 | 参数 | 取值 | 说明 |
@@ -68,7 +68,7 @@ python3 build-offline-pkg.py [options]
 | `--python-version` | 如 `3.12` | 覆盖 wheel 的 Python 版本（默认读 manifest） |
 | `--retries` | 整数 | 每个下载动作重试次数（默认 3） |
 | `--no-verify` | — | 跳过 uv 离线校验 |
-| `--log-file` | 路径 | 日志文件（默认脚本同目录 `build-offline-pkg.log`） |
+| `--log-file` | 路径 | 日志文件（默认脚本同目录 `build.log`） |
 | `--verbose` | — | 控制台调试级输出（日志文件始终全量记录） |
 
 产物命名：`openai_api_compatible-0.0.65-arm64.difypkg` →
@@ -97,9 +97,9 @@ python3 build-offline-pkg.py [options]
 镜像偶尔会比官方源晚同步几小时到几天（新发布的版本可能暂时缺失），某个依赖下载失败时换源即可：
 
 ```bash
-python3 build-offline-pkg.py --pip-source aliyun
+python3 build.py --pip-source aliyun
 # 或使用内部镜像：
-python3 build-offline-pkg.py --pip-index-url http://nexus.internal/pypi/simple
+python3 build.py --pip-index-url http://nexus.internal/pypi/simple
 ```
 
 ## 工作原理
@@ -137,7 +137,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 - 🪞 pip 源可配：官方 / 阿里 / 清华 / 腾讯 / 中科大，或任意自定义源（内部 Nexus 等）
 - 📋 失败处理：先整包下载，失败自动转逐包重试；每个失败依赖单独记日志，退出码 1，
   绝不产出半成品包
-- 📝 全流程日志：控制台 + `build-offline-pkg.log`，带时间戳，每次重试都记录
+- 📝 全流程日志：控制台 + `build.log`，带时间戳，每次重试都记录
 - ✅ 自动校验：装有 uv 时用守护进程同款命令 `uv pip install --dry-run --offline` 验证
 - 🔏 可复现：固定 zip 时间戳，重复打包 SHA256 一致
 - 🚫 不需要 Dify CLI：重打包只需 zip 操作 + pip download
@@ -164,7 +164,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 | Linux (arm64) | ✅ 与上述实测构建同一代码路径 |
 | Windows | ✅ 设计兼容（纯标准库、UTF-8 控制台处理、路径分隔符处理）；欢迎实机验证，有问题提 issue |
 
-Windows 下调用：`python build-offline-pkg.py ...`（或 `py -3 ...`）。
+Windows 下调用：`python build.py ...`（或 `py -3 ...`）。
 
 ### Dify 版本兼容性
 
@@ -180,7 +180,7 @@ Windows 下调用：`python build-offline-pkg.py ...`（或 `py -3 ...`）。
 2026-09-06 18:14:53 [WARNING] [3/43] gevent==26.5.0 —— 失败(exit=1): ERROR: No matching distribution ...
 2026-09-06 18:15:02 [ERROR] 依赖下载失败: gevent==26.5.0
 ...
-2026-09-06 18:15:02 [ERROR] 存在下载失败的依赖（43 条），详见上方 [ERROR] 日志: build-offline-pkg.log
+2026-09-06 18:15:02 [ERROR] 存在下载失败的依赖（43 条），详见上方 [ERROR] 日志: build.log
 ```
 
 - 失败时退出码为 **1**，且不产出任何包。
@@ -224,12 +224,12 @@ uv pip install --dry-run --offline --target <tmp> \
 
 ```
 .
-├── build-offline-pkg.py          # 打包工具（纯 Python 3 标准库）
+├── build.py                      # 打包工具（纯 Python 3 标准库）
 ├── images/                       # logo / 海报素材
-│   ├── dify-plugin-build-offline-package-logo.svg
-│   └── dify-plugin-build-offline-package-wordmark-poster-cn.png · -en.png
+│   ├── logo.svg
+│   └── poster-cn.png · poster-en.png
 ├── 离线包打包文档.md               # 中文详细文档
-├── build-offline-pkg.log         # 运行日志（每次运行追加）
+├── build.log                     # 运行日志（每次运行追加）
 ├── README.md                     # 中文说明（本文件）
 ├── README_EN.md                  # English README
 └── LICENSE

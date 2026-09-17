@@ -1,7 +1,7 @@
 .idea
 
 # 日志与产物
-build-offline-pkg.log
+build.log
 *.difypkg
 *.sha256
 

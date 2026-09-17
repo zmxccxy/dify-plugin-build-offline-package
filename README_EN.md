@@ -254,10 +254,10 @@ Yes: `--pip-index-url http://<mirror>/pypi/simple`.
 
 ```
 .
-├── build.py          # the tool (Python 3 stdlib only)
+├── build.py                      # the tool (Python 3 stdlib only)
 ├── images/                       # logo & poster assets
-│   ├── dify-plugin-build-offline-package-logo.svg
-│   └── dify-plugin-build-offline-package-wordmark-poster-cn.png · -en.png
+│   ├── logo.svg
+│   └── poster-cn.png · poster-en.png
 ├── 离线包打包文档.md               # full Chinese documentation
 ├── build.log         # generated log (appended per run)
 ├── README.md                     # 中文说明 (Chinese)
