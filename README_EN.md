@@ -36,19 +36,21 @@ ARM64 intranet Dify 1.17.0 server.
 
 ## Quick start
 
+The original `.difypkg` is auto-detected next to `build.py`, or point to any path with `--input /path/to/xx.difypkg`.
+
+Build (use `python3` on macOS / Linux, `python` on Windows; add `--pip-source` for a faster mirror):
+
 ```bash
-# 1. build — default: arm64, official PyPI
 python3 build.py
-
-# 2. result
-#    openai_api_compatible-0.0.65-arm64-offline.difypkg
-#    openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
-
-# Windows (cmd / PowerShell)
-python build.py --arch amd64 --pip-source tsinghua
+python3 build.py --arch amd64 --pip-source tsinghua
 ```
 
-The original `.difypkg` is auto-detected next to `build.py`, or point to any path with `--input /path/to/xx.difypkg`.
+Two files are produced next to `build.py`:
+
+```
+openai_api_compatible-0.0.65-arm64-offline.difypkg
+openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
+```
 
 Before installing on the offline server, read
 [Installing on the offline server](#installing-on-the-offline-server)

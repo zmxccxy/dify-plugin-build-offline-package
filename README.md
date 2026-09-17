@@ -33,19 +33,21 @@ wheel 内置进包内，守护进程全部从本地文件安装——**安装时
 
 ## 快速开始
 
+原始 `.difypkg` 放 `build.py` 同目录即可自动识别，也可用 `--input /path/to/xx.difypkg` 指定任意路径。
+
+打包命令（macOS / Linux 用 `python3`，Windows 用 `python`，加 `--pip-source` 换国内源）：
+
 ```bash
-# 1. 打包（默认 arm64 + 官方源）
 python3 build.py
-
-# 2. 产物
-#    openai_api_compatible-0.0.65-arm64-offline.difypkg
-#    openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
-
-# Windows（cmd / PowerShell）
-python build.py --arch amd64 --pip-source tsinghua
+python3 build.py --arch amd64 --pip-source tsinghua
 ```
 
-原始 `.difypkg` 放 `build.py` 同目录即可自动识别，也可用 `--input /path/to/xx.difypkg` 指定任意路径。
+产物为 `build.py` 同目录下的两个文件：
+
+```
+openai_api_compatible-0.0.65-arm64-offline.difypkg
+openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
+```
 
 装到内网服务器前，先看[内网服务器安装注意](#内网服务器安装注意)（签名校验 / 包大小 / nginx 限制）。
 
