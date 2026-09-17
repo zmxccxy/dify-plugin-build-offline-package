@@ -37,22 +37,18 @@ ARM64 intranet Dify 1.17.0 server.
 ## Quick start
 
 ```bash
-# 1. put the original plugin package next to the script
-cp ~/Downloads/openai_api_compatible-0.0.65.difypkg .
-
-# 2. build — default: arm64, official PyPI
+# 1. build — default: arm64, official PyPI
 python3 build.py
 
-# 3. result
+# 2. result
 #    openai_api_compatible-0.0.65-arm64-offline.difypkg
 #    openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
-```
 
-Windows (cmd / PowerShell):
-
-```powershell
+# Windows (cmd / PowerShell)
 python build.py --arch amd64 --pip-source tsinghua
 ```
+
+The original `.difypkg` is auto-detected next to `build.py`, or point to any path with `--input /path/to/xx.difypkg`.
 
 Before installing on the offline server, read
 [Installing on the offline server](#installing-on-the-offline-server)
