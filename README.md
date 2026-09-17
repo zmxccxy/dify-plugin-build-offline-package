@@ -77,7 +77,7 @@ python3 build.py [options]
 1. 从**官方市场 / GitHub Releases** 获取所需插件的发布包——推荐，一定包含 `requirements.txt`；
 2. 用官方 CLI 从源码打包：`dify plugin package <目录> -o out.difypkg`
    —— CLI 安装方式见 [Dify Plugin CLI](https://docs.dify.ai/en/develop-plugin/getting-started/cli)
-   （二进制下载：[dify-plugin-daemon releases](https://github.com/langgenius/dify-plugin-daemon/releases)）；
+   （二进制下载：[dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)）；
 3. 从已有的 Dify 实例导出。
 
 > 本工具只负责重打包；如需从源码打包，请先用官方 CLI。

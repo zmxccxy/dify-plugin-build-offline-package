@@ -53,7 +53,7 @@ openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
 ```
 
 Before installing on the offline server, read
-[Installing on the offline server](#installing-on-the-offline-server)
+[内网服务器安装注意](README.md#内网服务器安装注意)
 (signature verification / package size / nginx limits).
 
 ## Usage
@@ -83,7 +83,7 @@ Output naming: `openai_api_compatible-0.0.65-arm64.difypkg` →
    contains `requirements.txt`;
 2. **Build from source** with the official CLI: `dify plugin package <dir> -o out.difypkg`
    — CLI install instructions: [Dify Plugin CLI](https://docs.dify.ai/en/develop-plugin/getting-started/cli)
-   (binaries: [dify-plugin-daemon releases](https://github.com/langgenius/dify-plugin-daemon/releases));
+   (binaries: [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases));
 3. Export from an existing Dify instance.
 
 > This tool only repackages. If you must build from source, use the official CLI first.
