@@ -157,7 +157,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← same command the da
 
 ## 8. Requirements & Compatibility
 
-### Requirements
+### 8.1. Requirements
 
 | Item | Requirement |
 | ---- | ----------- |
@@ -166,7 +166,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← same command the da
 | Input | a valid Dify plugin `.difypkg` that **contains `requirements.txt`** (official marketplace / GitHub release packages all do) |
 | Optional | `uv` for the offline-resolution verification step (`pip install uv`) |
 
-### OS compatibility
+### 8.2. OS compatibility
 
 The tool uses only the Python standard library plus `pip`, with no shell commands or
 OS-specific paths, and runs on all major desktop OSes:
@@ -180,7 +180,7 @@ OS-specific paths, and runs on all major desktop OSes:
 
 Windows invocation: `python build.py ...` (or `py -3 ...`).
 
-### Dify version compatibility
+### 8.3. Dify version compatibility
 
 > ⚠️ **Version notice**: currently validated against **Dify 1.17.0** (plugin-daemon 0.6.x); other Dify versions are **not guaranteed** to be compatible.
 

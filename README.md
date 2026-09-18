@@ -142,7 +142,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 
 ## 8. 环境要求与兼容性
 
-### 环境要求
+### 8.1. 环境要求
 
 | 项目 | 要求 |
 | ---- | ---- |
@@ -151,7 +151,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 | 输入包 | 有效的 Dify 插件 `.difypkg`，**且包含 `requirements.txt`**（官方市场 / GitHub Releases 的包都满足） |
 | 可选 | `uv`（用于离线解析验证，`pip install uv`） |
 
-### 操作系统兼容性
+### 8.2. 操作系统兼容性
 
 脚本只依赖 Python 标准库 + pip（无 shell 命令、无平台相关路径），三大桌面系统均可运行：
 
@@ -164,7 +164,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 
 Windows 下调用：`python build.py ...`（或 `py -3 ...`）。
 
-### Dify 版本兼容性
+### 8.3. Dify 版本兼容性
 
 > ⚠️ **版本声明**：本项目目前已在 **Dify 1.17.0**（plugin-daemon 0.6.x）上验证，其他 Dify 版本**不保证兼容**。
 
