@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="images/poster-en.png" alt="dify-plugin-build-offline-package intro poster" width="100%" />
+
 <img src="images/logo.svg" width="96" alt="dify-plugin-build-offline-package logo" />
 
 # dify-plugin-build-offline-package
@@ -15,10 +17,6 @@
 [简体中文](README.md) | **English**
 
 </div>
-
-<p align="center">
-  <img src="images/poster-en.png" alt="dify-plugin-build-offline-package intro poster" width="100%" />
-</p>
 
 ## 1. What problem does it solve
 

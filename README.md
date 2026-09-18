@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="images/poster-cn.png" alt="dify-plugin-build-offline-package 介绍海报" width="100%" />
+
 <img src="images/logo.svg" width="96" alt="dify-plugin-build-offline-package logo" />
 
 # dify-plugin-build-offline-package
@@ -15,10 +17,6 @@
 **简体中文** | [English](README_EN.md)
 
 </div>
-
-<p align="center">
-  <img src="images/poster-cn.png" alt="dify-plugin-build-offline-package 介绍海报" width="100%" />
-</p>
 
 ## 1. 解决什么问题
 
