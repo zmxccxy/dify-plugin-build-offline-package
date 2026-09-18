@@ -214,7 +214,7 @@ uv pip install --dry-run --offline --target <tmp> \
 
 ## 11. Installing on the offline server
 
-### 1. Signature verification: two ways to allow the package
+### 11.1. Signature verification: two ways to allow the package
 
 Repackaging changes the package contents, so the official signature is always invalidated and
 installation fails with `plugin verification has been enabled ... bad signature`. Pick **one**:
@@ -224,7 +224,7 @@ installation fails with `plugin verification has been enabled ... bad signature`
 | **A. Disable verification** | Lower | No | Quick and simple, trusted intranet |
 | **B. Third-party verification** | Higher | **Yes** | Keep verification, trust only your own key |
 
-#### 1.1 Option A: disable signature verification
+#### 11.1.1. Option A: disable signature verification
 
 Set this in the Dify deployment `.env`, then restart the daemon:
 
@@ -235,7 +235,7 @@ docker compose up -d plugin_daemon
 
 This **skips all signature checks** — neither marketplace plugins nor your own are verified.
 
-#### 1.2 Option B: third-party signature verification
+#### 11.1.2. Option B: third-party signature verification
 
 Verification stays on, and your public key is **appended** to the whitelist. The official key is
 always included, so **marketplace plugins keep working** — your signed packages are simply
@@ -246,7 +246,7 @@ trusted in addition.
 > [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)).
 > If you'd rather not add the CLI, use Option A instead.
 
-##### 1.2.1 Generate a key and sign
+##### 11.1.2.1. Generate a key and sign
 
 ```bash
 # 1) generate a key pair (keep the private key secret)
@@ -259,7 +259,7 @@ dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
 dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
 ```
 
-##### 1.2.2 What should `-c` be?
+##### 11.1.2.2. What should `-c` be?
 
 `-c` (`authorized_category`) declares **under whose name the package is distributed**. The daemon
 compares it with the `author` field in the plugin's `manifest.yaml`. Only three values are valid:
@@ -289,7 +289,7 @@ grep '^author:' manifest.yaml     # check first; prints author: langgenius
 dify signature sign xxx.difypkg -p mykey.private.pem -c langgenius
 ```
 
-##### 1.2.3 Hand the public key to the daemon
+##### 11.1.2.3. Hand the public key to the daemon
 
 Place it in the mounted directory first (`plugin_daemon`'s `./volumes/plugin_daemon` is mounted at
 `/app/storage` inside the container):
@@ -314,12 +314,12 @@ services:
 docker compose up -d plugin_daemon
 ```
 
-### 2. Package size limit
+### 11.2. Package size limit
 
 Dify 1.17.0's api container defaults to `PLUGIN_MAX_PACKAGE_SIZE=52428800` (50 MB). Fine for
 single-arch packages; raise it if a `both` package exceeds it.
 
-### 3. Front nginx
+### 11.3. Front nginx
 
 `413 Request Entity Too Large` means the nginx in front of Dify needs `client_max_body_size`
 greater than the package size, then reload.

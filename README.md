@@ -197,7 +197,7 @@ uv pip install --dry-run --offline --target <tmp> \
 
 ## 11. 内网服务器安装注意
 
-### 1. 签名校验：两种放行方式
+### 11.1. 签名校验：两种放行方式
 
 重打包会改变包内容，官方签名必然失效，安装时报
 `plugin verification has been enabled ... bad signature`。**二选一**：
@@ -207,7 +207,7 @@ uv pip install --dry-run --offline --target <tmp> \
 | **A. 关闭签名校验** | 较低 | 否 | 图省事、内网可控 |
 | **B. 第三方签名验证** | 高 | **是** | 保留校验，只额外信任自己的密钥 |
 
-#### 1.1 方式 A：关闭签名校验
+#### 11.1.1. 方式 A：关闭签名校验
 
 在 Dify 部署的 `.env` 中设置，然后重启守护进程：
 
@@ -218,7 +218,7 @@ docker compose up -d plugin_daemon
 
 此方式会**跳过所有签名校验**，官方市场插件与你自制的包都不再验证，请自行评估风险。
 
-#### 1.2 方式 B：第三方签名验证
+#### 11.1.2. 方式 B：第三方签名验证
 
 保留签名校验，在白名单中**追加**自己的公钥 —— 官方公钥始终有效，因此
 **官方市场插件照常可用**，只是额外信任你签名的包。
@@ -228,7 +228,7 @@ docker compose up -d plugin_daemon
 > [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)）。
 > 若不愿引入 CLI，请改用方式 A。
 
-##### 1.2.1 生成密钥并签名
+##### 11.1.2.1. 生成密钥并签名
 
 ```bash
 # 1) 生成密钥对（私钥务必保密）
@@ -241,7 +241,7 @@ dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
 dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
 ```
 
-##### 1.2.2 `-c` 该填什么？
+##### 11.1.2.2. `-c` 该填什么？
 
 `-c`（`authorized_category`）声明**「这个包以谁的名义分发」**，守护进程会拿它和
 插件 `manifest.yaml` 里的 `author` 字段比对。合法值只有三个：
@@ -270,7 +270,7 @@ grep '^author:' manifest.yaml     # 先确认，输出 author: langgenius
 dify signature sign xxx.difypkg -p mykey.private.pem -c langgenius
 ```
 
-##### 1.2.3 把公钥交给守护进程
+##### 11.1.2.3. 把公钥交给守护进程
 
 先放入挂载目录（`plugin_daemon` 的 `./volumes/plugin_daemon` 挂载为容器内 `/app/storage`）：
 
@@ -294,12 +294,12 @@ services:
 docker compose up -d plugin_daemon
 ```
 
-### 2. 包大小限制
+### 11.2. 包大小限制
 
 Dify 1.17.0 的 api 容器默认 `PLUGIN_MAX_PACKAGE_SIZE=52428800`（50MB），
 单架构包一般够用；双架构包超限时调大该值。
 
-### 3. 前置 nginx
+### 11.3. 前置 nginx
 
 上传报 `413 Request Entity Too Large` 时，把对应 nginx 的
 `client_max_body_size` 调到大于包体积后 reload。
