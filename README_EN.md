@@ -270,7 +270,9 @@ compares it with the `author` field in the plugin's `manifest.yaml`. Only three 
 | `partner` | Distributed on behalf of an official partner |
 | `community` | Distributed by a community developer |
 
-**Decide it solely from the plugin's `author` field in `manifest.yaml`:**
+###### 11.1.2.2.1. How to choose
+
+Look only at the plugin's `author` field in `manifest.yaml`:
 
 | Plugin's `author` | Required `-c` | Consequence of getting it wrong |
 | ----------------- | ------------- | ------------------------------- |

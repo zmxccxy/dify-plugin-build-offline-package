@@ -252,7 +252,9 @@ dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
 | `partner` | 代表官方合作伙伴分发 |
 | `community` | 代表社区开发者分发 |
 
-**怎么选，只看插件 `manifest.yaml` 的 `author` 字段**：
+###### 11.1.2.2.1. 怎么选
+
+只看插件 `manifest.yaml` 的 `author` 字段：
 
 | 插件 `author` 的值 | 必须用的 `-c` | 填错的后果 |
 | ------------------ | ------------- | ---------- |
