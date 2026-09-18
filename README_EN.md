@@ -153,7 +153,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← same command the da
   `uv pip install --dry-run --offline` when `uv` is available
 - 🔏 **Reproducible**: fixed zip timestamps → identical SHA256 on re-runs
 - 🚫 **No Dify CLI required**: the tool repackages an *existing* `.difypkg` (pure zip
-  manipulation + `pip download`)
+  manipulation + `pip download`); only *self-signing* needs the CLI
 
 ## Requirements & Compatibility
 
@@ -214,18 +214,83 @@ uv pip install --dry-run --offline --target <tmp> \
 
 ## Installing on the offline server
 
-1. **Signature verification** — repackaging invalidates the official signature. If install
-   fails with `plugin verification has been enabled ... bad signature`, set in the Dify
-   deployment `.env` and restart the daemon:
-   ```bash
-   FORCE_VERIFYING_SIGNATURE=false
-   docker compose up -d plugin_daemon
-   ```
-2. **Package size limit** — Dify 1.17.0's api container defaults to
-   `PLUGIN_MAX_PACKAGE_SIZE=52428800` (50 MB). Fine for single-arch packages; raise it if a
-   `both` package exceeds it.
-3. **Front nginx** — `413 Request Entity Too Large` means the nginx in front of Dify needs
-   `client_max_body_size` > package size, then reload.
+### Signature verification: two ways to allow the package
+
+Repackaging changes the package contents, so the official signature is always invalidated and
+installation fails with `plugin verification has been enabled ... bad signature`. Pick **one**:
+
+| Option | Security | Needs Dify CLI | When to use |
+| ------ | -------- | -------------- | ----------- |
+| **A. Disable verification** | Lower | No | Quick and simple, trusted intranet |
+| **B. Third-party verification** | Higher | **Yes** | Keep verification, trust only your own key |
+
+#### Option A: disable signature verification
+
+Set this in the Dify deployment `.env`, then restart the daemon:
+
+```bash
+FORCE_VERIFYING_SIGNATURE=false
+docker compose up -d plugin_daemon
+```
+
+This **skips all signature checks** — neither marketplace plugins nor your own are verified.
+
+#### Option B: third-party signature verification (recommended)
+
+Verification stays on, and your public key is **appended** to the whitelist. The official key is
+always included, so **marketplace plugins keep working** — your signed packages are simply
+trusted in addition.
+
+> ⚠️ **Requires the official Dify CLI.** This tool does not generate signatures; self-signing is
+> done by `dify signature`. Install it with `brew install langgenius/dify/dify` (Linux / Windows:
+> [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)).
+> If you'd rather not add the CLI, use Option A instead.
+
+```bash
+# 1) generate a key pair (keep the private key secret)
+dify signature generate -f mykey
+
+# 2) sign the offline package (the tool's output has no stale signature file)
+dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
+
+# 3) verify
+dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
+```
+
+Give the public key to the daemon and enable the feature in `docker-compose.override.yaml`:
+
+```yaml
+services:
+  plugin_daemon:
+    environment:
+      FORCE_VERIFYING_SIGNATURE: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/public_keys/mykey.public.pem
+```
+
+Place the key in the mounted directory first (`plugin_daemon`'s `./volumes/plugin_daemon` is
+mounted at `/app/storage` inside the container):
+
+```bash
+mkdir -p docker/volumes/plugin_daemon/public_keys
+cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
+docker compose up -d plugin_daemon
+```
+
+About `-c`: the only valid values are `langgenius` / `partner` / `community`, meaning "authorized
+to distribute under which identity". If the plugin's `manifest.yaml` has `author: langgenius` you
+**must** use `-c langgenius`, otherwise the daemon rejects it as `unauthorized langgenius plugin`;
+use `-c community` for any other author.
+
+### Package size limit
+
+Dify 1.17.0's api container defaults to `PLUGIN_MAX_PACKAGE_SIZE=52428800` (50 MB). Fine for
+single-arch packages; raise it if a `both` package exceeds it.
+
+### Front nginx
+
+`413 Request Entity Too Large` means the nginx in front of Dify needs `client_max_body_size`
+greater than the package size, then reload.
 
 ## FAQ
 
@@ -234,8 +299,9 @@ Some packages (e.g. recent gevent releases) only publish `manylinux_2_28` wheels
 official plugin-daemon image is Ubuntu 24.04 (glibc 2.39), which runs both.
 
 **Do I need the official Dify CLI?**
-No — repackaging only needs Python's `zipfile` + `pip download`. The CLI is only required
-if you must package a plugin from source code first.
+No for building — repackaging only needs Python's `zipfile` + `pip download`. It is required for
+packaging a plugin from source code, and for *self-signing*. Without it, use Option A in
+[Installing on the offline server](#installing-on-the-offline-server) instead.
 
 **Why is the SHA256 identical on every re-run?**
 Zip entries use fixed timestamps and sorted order, so identical content produces identical

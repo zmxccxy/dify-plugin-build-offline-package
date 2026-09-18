@@ -138,7 +138,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 - 📝 全流程日志：控制台 + `build.log`，带时间戳，每次重试都记录
 - ✅ 自动校验：装有 uv 时用守护进程同款命令 `uv pip install --dry-run --offline` 验证
 - 🔏 可复现：固定 zip 时间戳，重复打包 SHA256 一致
-- 🚫 不需要 Dify CLI：重打包只需 zip 操作 + pip download
+- 🚫 不需要 Dify CLI：重打包只需 zip 操作 + pip download（仅"自签名"才需要 CLI）
 
 ## 环境要求与兼容性
 
@@ -197,22 +197,88 @@ uv pip install --dry-run --offline --target <tmp> \
 
 ## 内网服务器安装注意
 
-1. **签名校验**——重打包会破坏官方签名。安装报
-   `plugin verification has been enabled ... bad signature` 时，在 Dify 部署 `.env` 设置并重启守护进程：
-   ```bash
-   FORCE_VERIFYING_SIGNATURE=false
-   docker compose up -d plugin_daemon
-   ```
-2. **包大小限制**——Dify 1.17.0 的 api 容器默认 `PLUGIN_MAX_PACKAGE_SIZE=52428800`（50MB），
-   单架构包一般够用；双架构包超限时调大该值；
-3. **前置 nginx**——上传报 `413 Request Entity Too Large` 时，把对应 nginx 的
-   `client_max_body_size` 调到大于包体积后 reload。
+### 签名校验：两种放行方式
+
+重打包会改变包内容，官方签名必然失效，安装时报
+`plugin verification has been enabled ... bad signature`。**二选一**：
+
+| 方式 | 安全性 | 需要 Dify CLI | 适用场景 |
+| ---- | ------ | ------------- | -------- |
+| **A. 关闭签名校验** | 较低 | 否 | 图省事、内网可控 |
+| **B. 第三方签名验证** | 高 | **是** | 保留校验，只额外信任自己的密钥 |
+
+#### 方式 A：关闭签名校验
+
+在 Dify 部署的 `.env` 中设置，然后重启守护进程：
+
+```bash
+FORCE_VERIFYING_SIGNATURE=false
+docker compose up -d plugin_daemon
+```
+
+此方式会**跳过所有签名校验**，官方市场插件与你自制的包都不再验证，请自行评估风险。
+
+#### 方式 B：第三方签名验证（推荐）
+
+保留签名校验，在白名单中**追加**自己的公钥 —— 官方公钥始终有效，因此
+**官方市场插件照常可用**，只是额外信任你签名的包。
+
+> ⚠️ **需要官方 Dify CLI**：本工具不生成签名，自签名须由 `dify signature` 完成。
+> 安装 CLI：`brew install langgenius/dify/dify`（Linux / Windows 见
+> [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)）。
+> 若不愿引入 CLI，请改用方式 A。
+
+```bash
+# 1) 生成密钥对（私钥务必保密）
+dify signature generate -f mykey
+
+# 2) 签名离线包（本工具产物内已无旧签名文件，可直接签）
+dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
+
+# 3) 校验
+dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
+```
+
+把公钥交给守护进程，并在 `docker-compose.override.yaml` 中启用：
+
+```yaml
+services:
+  plugin_daemon:
+    environment:
+      FORCE_VERIFYING_SIGNATURE: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_ENABLED: true
+      THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/public_keys/mykey.public.pem
+```
+
+需先把公钥放到挂载目录（`plugin_daemon` 的 `./volumes/plugin_daemon` 挂到容器内 `/app/storage`）：
+
+```bash
+mkdir -p docker/volumes/plugin_daemon/public_keys
+cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
+docker compose up -d plugin_daemon
+```
+
+关于 `-c` 的取值：合法值只有 `langgenius` / `partner` / `community`，它表示
+「被授权以何名义分发」。若插件 `manifest.yaml` 的 `author` 为 `langgenius`，则**必须**
+用 `-c langgenius`，否则报 `unauthorized langgenius plugin`；`author` 为其它的用
+`-c community`。
+
+### 包大小限制
+
+Dify 1.17.0 的 api 容器默认 `PLUGIN_MAX_PACKAGE_SIZE=52428800`（50MB），
+单架构包一般够用；双架构包超限时调大该值。
+
+### 前置 nginx
+
+上传报 `413 Request Entity Too Large` 时，把对应 nginx 的
+`client_max_body_size` 调到大于包体积后 reload。
 
 ## FAQ
 
 - **为什么用 manylinux2014 + manylinux_2_28 两个标签？** 部分新包（如 gevent 新版）只发
   `manylinux_2_28` wheel；官方守护进程镜像为 Ubuntu 24.04（glibc 2.39），两者都兼容。
-- **需要装官方 Dify CLI 吗？** 不需要；只有“从源码打包原始包”才需要它。
+- **需要装官方 Dify CLI 吗？** 打包不需要，只有"从源码打包原始包"和"自签名"才需要它。
+  不装 CLI 也能用，此时内网侧改用[关闭签名校验](#内网服务器安装注意)放行（见安装注意）。
 - **重复打包 SHA256 一样吗？** 一样（固定时间戳 + 排序，同内容同字节）。
 - **both 包体积翻倍吗？** 仅二进制 wheel 双份（按 `platform_machine` 标记），纯 Python
   wheel 只存一份；典型模型供应商插件从 ~13MB（单架构）到 ~21MB（双架构）。

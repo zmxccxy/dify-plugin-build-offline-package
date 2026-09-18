@@ -53,6 +53,10 @@ ARCH_OUT_LABEL = {"arm64": "arm64", "amd64": "amd64", "both": "all-arch"}
 
 PIP_TIMEOUT = 900  # 单次 pip download 超时秒数
 
+# 守护进程用于记录作者身份的签名元数据文件（与 dify-plugin-daemon 的
+# consts.VERIFICATION_FILE 一致）。重打包后原签名失效，需移除。
+VERIFICATION_FILE = ".verification.dify.json"
+
 
 # --------------------------------------------------------------------------
 # 日志：控制台 + 文件（UTF-8，兼容 Windows）
@@ -283,6 +287,15 @@ def strip_for_offline(build_dir: Path) -> None:
             p.unlink()
             LOG.info("已移除 %s —— 强制守护进程使用 requirements.txt 离线安装", fn)
 
+    # 重打包必然使官方签名失效，保留旧的 .verification.dify.json 只有坏处：
+    # 它记录的是原作者身份（如 langgenius），既与实际情况不符，又会让后续用
+    # `dify signature sign` 自签名时出现同名条目重复，导致验签失败。
+    # 签名工具会自行写入正确的新文件，故此处直接移除，交由签名步骤重建。
+    p = build_dir / VERIFICATION_FILE
+    if p.exists():
+        p.unlink()
+        LOG.info("已移除 %s —— 原签名已失效，交由签名步骤重建", VERIFICATION_FILE)
+
 
 def repack(build_dir: Path, out_path: Path) -> None:
     """重新打包。固定时间戳保证同内容产物字节一致（SHA256 可复现）。"""
@@ -442,8 +455,10 @@ def main():
         LOG.info("SHA256: %s", sha)
         LOG.info("校验文件: %s", out_path.with_suffix(out_path.suffix + ".sha256"))
         LOG.info("日志: %s", log_file)
-        LOG.info("内网安装提示: 若守护进程开启 FORCE_VERIFYING_SIGNATURE，重打包会破坏原签名，")
-        LOG.info("              需将其设为 false（见打包文档），否则安装报 bad signature。")
+        LOG.info("内网安装提示: 重打包会破坏官方签名，安装报 bad signature 时二选一——")
+        LOG.info("              1) 关闭校验: FORCE_VERIFYING_SIGNATURE=false（较不安全）")
+        LOG.info("              2) 第三方签名: 用 dify CLI 签名 + 配置公钥（保留校验，推荐）")
+        LOG.info("              详见 README 的「内网服务器安装注意」章节。")
         return 0
     finally:
         shutil.rmtree(tmp_root, ignore_errors=True)
