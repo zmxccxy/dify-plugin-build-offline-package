@@ -6,7 +6,7 @@
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f?logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Platforms](https://img.shields.io/badge/Platforms-macOS%20%E2%80%A2%20Windows%20%E2%80%A2%20Linux-1f6feb)](#环境要求与兼容性)
+[![Platforms](https://img.shields.io/badge/Platforms-macOS%20%E2%80%A2%20Windows%20%E2%80%A2%20Linux-1f6feb)](#8-环境要求与兼容性)
 [![Stars](https://img.shields.io/github/stars/zmxccxy/dify-plugin-build-offline-package?logo=github&logoColor=white)](https://github.com/zmxccxy/dify-plugin-build-offline-package)
 [![Release](https://img.shields.io/github/v/release/zmxccxy/dify-plugin-build-offline-package)](https://github.com/zmxccxy/dify-plugin-build-offline-package/releases)
 [![Last commit](https://img.shields.io/github/last-commit/zmxccxy/dify-plugin-build-offline-package?logo=git&logoColor=white)](https://github.com/zmxccxy/dify-plugin-build-offline-package/commits/main)
@@ -20,7 +20,7 @@
   <img src="images/poster-cn.png" alt="dify-plugin-build-offline-package 介绍海报" width="100%" />
 </p>
 
-## 解决什么问题
+## 1. 解决什么问题
 
 Dify 安装插件时，插件守护进程（`plugin_daemon`）会为插件创建独立的 Python 虚拟环境，
 用 `uv pip install` / `uv sync` 从 PyPI **联网**安装依赖。内网服务器（离线 / 涉密 / 政企 /
@@ -31,7 +31,7 @@ wheel 内置进包内，守护进程全部从本地文件安装——**安装时
 
 诞生于真实场景：把官方 `openai_api_compatible` 插件装到 ARM64 内网 Dify 1.17.0 服务器。
 
-## 快速开始
+## 2. 快速开始
 
 原始 `.difypkg` 放 `build.py` 同目录即可自动识别，也可用 `--input /path/to/xx.difypkg` 指定任意路径。
 
@@ -49,9 +49,9 @@ openai_api_compatible-0.0.65-arm64-offline.difypkg
 openai_api_compatible-0.0.65-arm64-offline.difypkg.sha256
 ```
 
-装到内网服务器前，先看[内网服务器安装注意](#内网服务器安装注意)（签名校验 / 包大小 / nginx 限制）。
+装到内网服务器前，先看[内网服务器安装注意](#11-内网服务器安装注意)（签名校验 / 包大小 / nginx 限制）。
 
-## 参数
+## 3. 参数
 
 ```
 python3 build.py [options]
@@ -72,7 +72,7 @@ python3 build.py [options]
 产物命名：`openai_api_compatible-0.0.65-arm64.difypkg` →
 `openai_api_compatible-0.0.65-arm64-offline.difypkg`（`--arch both` → `-all-arch-offline`）。
 
-## 获取原始 .difypkg
+## 4. 获取原始 .difypkg
 
 1. 从**官方市场 / GitHub Releases** 获取所需插件的发布包——推荐，一定包含 `requirements.txt`；
 2. 用官方 CLI 从源码打包：`dify plugin package <目录> -o out.difypkg`
@@ -82,7 +82,7 @@ python3 build.py [options]
 
 > 本工具只负责重打包；如需从源码打包，请先用官方 CLI。
 
-## pip 源
+## 5. pip 源
 
 | 名称 | 地址 |
 | ---- | ---- |
@@ -100,7 +100,7 @@ python3 build.py --pip-source aliyun
 python3 build.py --pip-index-url http://nexus.internal/pypi/simple
 ```
 
-## 工作原理
+## 6. 工作原理
 
 ```
 原始 .difypkg
@@ -128,7 +128,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 > 为什么删 `pyproject.toml`？包里有它时守护进程优先执行 `uv sync --frozen`（联网解析）。
 > 删掉它（和 `uv.lock`）后守护进程只能走 `requirements.txt`，即本地 wheel 离线安装。
 
-## 特性
+## 7. 特性
 
 - 🌍 跨平台：仅用 Python 3 标准库 + pip，macOS / Windows / Linux 一致运行
 - 🏗️ 多架构：`arm64`、`amd64`，或 `both` 双架构合一（安装时按 `platform_machine` 自动选 wheel）
@@ -140,7 +140,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← 与守护进程安�
 - 🔏 可复现：固定 zip 时间戳，重复打包 SHA256 一致
 - 🚫 不需要 Dify CLI：重打包只需 zip 操作 + pip download（仅"自签名"才需要 CLI）
 
-## 环境要求与兼容性
+## 8. 环境要求与兼容性
 
 ### 环境要求
 
@@ -168,7 +168,7 @@ Windows 下调用：`python build.py ...`（或 `py -3 ...`）。
 
 > ⚠️ **版本声明**：本项目目前已在 **Dify 1.17.0**（plugin-daemon 0.6.x）上验证，其他 Dify 版本**不保证兼容**。
 
-## 日志与失败处理
+## 9. 日志与失败处理
 
 - 先整包下载（快）；失败后自动转入逐包下载，已下载的部分自动复用、不会重复下载；
 - 每个依赖有独立的重试和日志行：
@@ -183,7 +183,7 @@ Windows 下调用：`python build.py ...`（或 `py -3 ...`）。
 
 - 失败时退出码为 **1**，且不产出任何包。
 
-## 校验
+## 10. 校验
 
 装有 `uv` 时，脚本会执行**守护进程同款安装命令**做离线解析验证：
 
@@ -195,9 +195,9 @@ uv pip install --dry-run --offline --target <tmp> \
 
 出现 `离线解析验证通过` 即代表该包可以在服务器上纯离线安装。
 
-## 内网服务器安装注意
+## 11. 内网服务器安装注意
 
-### 签名校验：两种放行方式
+### 1. 签名校验：两种放行方式
 
 重打包会改变包内容，官方签名必然失效，安装时报
 `plugin verification has been enabled ... bad signature`。**二选一**：
@@ -207,7 +207,7 @@ uv pip install --dry-run --offline --target <tmp> \
 | **A. 关闭签名校验** | 较低 | 否 | 图省事、内网可控 |
 | **B. 第三方签名验证** | 高 | **是** | 保留校验，只额外信任自己的密钥 |
 
-#### 方式 A：关闭签名校验
+#### 1.1 方式 A：关闭签名校验
 
 在 Dify 部署的 `.env` 中设置，然后重启守护进程：
 
@@ -218,7 +218,7 @@ docker compose up -d plugin_daemon
 
 此方式会**跳过所有签名校验**，官方市场插件与你自制的包都不再验证，请自行评估风险。
 
-#### 方式 B：第三方签名验证（推荐）
+#### 1.2 方式 B：第三方签名验证
 
 保留签名校验，在白名单中**追加**自己的公钥 —— 官方公钥始终有效，因此
 **官方市场插件照常可用**，只是额外信任你签名的包。
@@ -227,6 +227,8 @@ docker compose up -d plugin_daemon
 > 安装 CLI：`brew install langgenius/dify/dify`（Linux / Windows 见
 > [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)）。
 > 若不愿引入 CLI，请改用方式 A。
+
+##### 1.2.1 生成密钥并签名
 
 ```bash
 # 1) 生成密钥对（私钥务必保密）
@@ -239,7 +241,45 @@ dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
 dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
 ```
 
-把公钥交给守护进程，并在 `docker-compose.override.yaml` 中启用：
+##### 1.2.2 `-c` 该填什么？
+
+`-c`（`authorized_category`）声明**「这个包以谁的名义分发」**，守护进程会拿它和
+插件 `manifest.yaml` 里的 `author` 字段比对。合法值只有三个：
+
+| `-c` 取值 | 含义 |
+| --------- | ---- |
+| `langgenius` | 代表 Dify 官方（langgenius）分发 |
+| `partner` | 代表官方合作伙伴分发 |
+| `community` | 代表社区开发者分发 |
+
+**怎么选，只看插件 `manifest.yaml` 的 `author` 字段**：
+
+| 插件 `author` 的值 | 必须用的 `-c` | 填错的后果 |
+| ------------------ | ------------- | ---------- |
+| `langgenius` | `-c langgenius` | 守护进程拒绝安装，报 `unauthorized langgenius plugin` |
+| 其它任意值（如 `yourname`） | `-c community` | 一般不影响安装 |
+
+判断规则：**插件声称自己是官方的，你就必须用 `langgenius` 签名；否则用 `community`**。
+原因见守护进程源码 `isUnauthorizedLanggenius()` —— 当 `author` 为 `langgenius` 却不带
+`langgenius` 类别的签名时，会被判定为「冒用官方身份」。
+
+以本仓库测试用的 `langgenius-deepseek` 为例，它 `author: langgenius`，因此：
+
+```bash
+grep '^author:' manifest.yaml     # 先确认，输出 author: langgenius
+dify signature sign xxx.difypkg -p mykey.private.pem -c langgenius
+```
+
+##### 1.2.3 把公钥交给守护进程
+
+先放入挂载目录（`plugin_daemon` 的 `./volumes/plugin_daemon` 挂载为容器内 `/app/storage`）：
+
+```bash
+mkdir -p docker/volumes/plugin_daemon/public_keys
+cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
+```
+
+再在 `docker-compose.override.yaml` 中启用：
 
 ```yaml
 services:
@@ -250,41 +290,32 @@ services:
       THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/public_keys/mykey.public.pem
 ```
 
-需先把公钥放到挂载目录（`plugin_daemon` 的 `./volumes/plugin_daemon` 挂到容器内 `/app/storage`）：
-
 ```bash
-mkdir -p docker/volumes/plugin_daemon/public_keys
-cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
 docker compose up -d plugin_daemon
 ```
 
-关于 `-c` 的取值：合法值只有 `langgenius` / `partner` / `community`，它表示
-「被授权以何名义分发」。若插件 `manifest.yaml` 的 `author` 为 `langgenius`，则**必须**
-用 `-c langgenius`，否则报 `unauthorized langgenius plugin`；`author` 为其它的用
-`-c community`。
-
-### 包大小限制
+### 2. 包大小限制
 
 Dify 1.17.0 的 api 容器默认 `PLUGIN_MAX_PACKAGE_SIZE=52428800`（50MB），
 单架构包一般够用；双架构包超限时调大该值。
 
-### 前置 nginx
+### 3. 前置 nginx
 
 上传报 `413 Request Entity Too Large` 时，把对应 nginx 的
 `client_max_body_size` 调到大于包体积后 reload。
 
-## FAQ
+## 12. FAQ
 
 - **为什么用 manylinux2014 + manylinux_2_28 两个标签？** 部分新包（如 gevent 新版）只发
   `manylinux_2_28` wheel；官方守护进程镜像为 Ubuntu 24.04（glibc 2.39），两者都兼容。
 - **需要装官方 Dify CLI 吗？** 打包不需要，只有"从源码打包原始包"和"自签名"才需要它。
-  不装 CLI 也能用，此时内网侧改用[关闭签名校验](#内网服务器安装注意)放行（见安装注意）。
+  不装 CLI 也能用，此时内网侧改用[关闭签名校验](#11-内网服务器安装注意)放行（见安装注意）。
 - **重复打包 SHA256 一样吗？** 一样（固定时间戳 + 排序，同内容同字节）。
 - **both 包体积翻倍吗？** 仅二进制 wheel 双份（按 `platform_machine` 标记），纯 Python
   wheel 只存一份；典型模型供应商插件从 ~13MB（单架构）到 ~21MB（双架构）。
 - **能用公司内部镜像吗？** `--pip-index-url http://<镜像>/pypi/simple`。
 
-## 项目结构
+## 13. 项目结构
 
 ```
 .
@@ -299,12 +330,12 @@ Dify 1.17.0 的 api 容器默认 `PLUGIN_MAX_PACKAGE_SIZE=52428800`（50MB），
 └── LICENSE
 ```
 
-## 声明
+## 14. 声明
 
 本项目为社区工具，**与 langgenius / Dify 官方无关**；"Dify" 等商标归其所有者所有。
 README 的排版与徽章风格参考了 [Dify 官方仓库](https://github.com/langgenius/dify)，致谢 Dify 团队。
 
-## Star 增长趋势
+## 15. Star 增长趋势
 
 <a href="https://star-history.com/#zmxccxy/dify-plugin-build-offline-package&date">
   <picture>
@@ -314,6 +345,6 @@ README 的排版与徽章风格参考了 [Dify 官方仓库](https://github.com/
   </picture>
 </a>
 
-## 许可证
+## 16. 许可证
 
 [MIT](LICENSE)

@@ -6,7 +6,7 @@
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f?logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Platforms](https://img.shields.io/badge/Platforms-macOS%20%E2%80%A2%20Windows%20%E2%80%A2%20Linux-1f6feb)](#requirements--compatibility)
+[![Platforms](https://img.shields.io/badge/Platforms-macOS%20%E2%80%A2%20Windows%20%E2%80%A2%20Linux-1f6feb)](#8-requirements--compatibility)
 [![Stars](https://img.shields.io/github/stars/zmxccxy/dify-plugin-build-offline-package?logo=github&logoColor=white)](https://github.com/zmxccxy/dify-plugin-build-offline-package)
 [![Release](https://img.shields.io/github/v/release/zmxccxy/dify-plugin-build-offline-package)](https://github.com/zmxccxy/dify-plugin-build-offline-package/releases)
 [![Last commit](https://img.shields.io/github/last-commit/zmxccxy/dify-plugin-build-offline-package?logo=git&logoColor=white)](https://github.com/zmxccxy/dify-plugin-build-offline-package/commits/main)
@@ -20,7 +20,7 @@
   <img src="images/poster-en.png" alt="dify-plugin-build-offline-package intro poster" width="100%" />
 </p>
 
-## What problem does it solve
+## 1. What problem does it solve
 
 Dify installs a plugin by having its plugin daemon (`plugin_daemon`) create a fresh Python
 virtual environment and install the plugin's dependencies with `uv pip install` /
@@ -34,7 +34,7 @@ everything from local files — **no network needed at install time**.
 Born from a real-world case: installing the official `openai_api_compatible` plugin on an
 ARM64 intranet Dify 1.17.0 server.
 
-## Quick start
+## 2. Quick start
 
 The original `.difypkg` is auto-detected next to `build.py`, or point to any path with `--input /path/to/xx.difypkg`.
 
@@ -56,7 +56,7 @@ Before installing on the offline server, read
 [内网服务器安装注意](README.md#内网服务器安装注意)
 (signature verification / package size / nginx limits).
 
-## Usage
+## 3. Usage
 
 ```
 python3 build.py [options]
@@ -77,7 +77,7 @@ python3 build.py [options]
 Output naming: `openai_api_compatible-0.0.65-arm64.difypkg` →
 `openai_api_compatible-0.0.65-arm64-offline.difypkg` (`--arch both` → `-all-arch-offline`).
 
-## Getting an original `.difypkg`
+## 4. Getting an original `.difypkg`
 
 1. **Official marketplace / GitHub release** of the plugin you need — recommended, it always
    contains `requirements.txt`;
@@ -88,7 +88,7 @@ Output naming: `openai_api_compatible-0.0.65-arm64.difypkg` →
 
 > This tool only repackages. If you must build from source, use the official CLI first.
 
-## pip mirrors
+## 5. pip mirrors
 
 | Name | URL |
 | ---- | --- |
@@ -107,7 +107,7 @@ python3 build.py --pip-source aliyun
 python3 build.py --pip-index-url http://nexus.internal/pypi/simple
 ```
 
-## How it works
+## 6. How it works
 
 ```
 original .difypkg
@@ -138,7 +138,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← same command the da
 > prefers `uv sync --frozen`, which resolves from the network. Removing it (and `uv.lock`)
 > forces the daemon to install from the bundled `requirements.txt` — fully offline.
 
-## Features
+## 7. Features
 
 - 🌍 **Cross-platform**: pure Python 3 stdlib + `pip`; runs identically on macOS, Windows and Linux
 - 🏗️ **Multi-arch**: `arm64`, `amd64`, or `both` (one universal package, wheel selected at
@@ -155,7 +155,7 @@ uv pip install --dry-run --offline -r requirements.txt   ← same command the da
 - 🚫 **No Dify CLI required**: the tool repackages an *existing* `.difypkg` (pure zip
   manipulation + `pip download`); only *self-signing* needs the CLI
 
-## Requirements & Compatibility
+## 8. Requirements & Compatibility
 
 ### Requirements
 
@@ -184,7 +184,7 @@ Windows invocation: `python build.py ...` (or `py -3 ...`).
 
 > ⚠️ **Version notice**: currently validated against **Dify 1.17.0** (plugin-daemon 0.6.x); other Dify versions are **not guaranteed** to be compatible.
 
-## Logging & failure handling
+## 9. Logging & failure handling
 
 - Whole-file download first (fast); on failure it automatically switches to per-package
   downloads, reusing everything already downloaded;
@@ -200,7 +200,7 @@ Windows invocation: `python build.py ...` (or `py -3 ...`).
 
 - Failed runs exit with code **1** and produce no output package.
 
-## Verification
+## 10. Verification
 
 When `uv` is installed, the script runs the **exact install command the Dify daemon uses**:
 
@@ -212,9 +212,9 @@ uv pip install --dry-run --offline --target <tmp> \
 
 `离线解析验证通过` means the package can install on the server with zero network.
 
-## Installing on the offline server
+## 11. Installing on the offline server
 
-### Signature verification: two ways to allow the package
+### 1. Signature verification: two ways to allow the package
 
 Repackaging changes the package contents, so the official signature is always invalidated and
 installation fails with `plugin verification has been enabled ... bad signature`. Pick **one**:
@@ -224,7 +224,7 @@ installation fails with `plugin verification has been enabled ... bad signature`
 | **A. Disable verification** | Lower | No | Quick and simple, trusted intranet |
 | **B. Third-party verification** | Higher | **Yes** | Keep verification, trust only your own key |
 
-#### Option A: disable signature verification
+#### 1.1 Option A: disable signature verification
 
 Set this in the Dify deployment `.env`, then restart the daemon:
 
@@ -235,7 +235,7 @@ docker compose up -d plugin_daemon
 
 This **skips all signature checks** — neither marketplace plugins nor your own are verified.
 
-#### Option B: third-party signature verification (recommended)
+#### 1.2 Option B: third-party signature verification
 
 Verification stays on, and your public key is **appended** to the whitelist. The official key is
 always included, so **marketplace plugins keep working** — your signed packages are simply
@@ -245,6 +245,8 @@ trusted in addition.
 > done by `dify signature`. Install it with `brew install langgenius/dify/dify` (Linux / Windows:
 > [dify-plugin-daemon Releases](https://github.com/langgenius/dify-plugin-daemon/releases)).
 > If you'd rather not add the CLI, use Option A instead.
+
+##### 1.2.1 Generate a key and sign
 
 ```bash
 # 1) generate a key pair (keep the private key secret)
@@ -257,7 +259,47 @@ dify signature sign xxx-arm64-offline.difypkg -p mykey.private.pem -c langgenius
 dify signature verify xxx-arm64-offline.signed.difypkg -p mykey.public.pem
 ```
 
-Give the public key to the daemon and enable the feature in `docker-compose.override.yaml`:
+##### 1.2.2 What should `-c` be?
+
+`-c` (`authorized_category`) declares **under whose name the package is distributed**. The daemon
+compares it with the `author` field in the plugin's `manifest.yaml`. Only three values are valid:
+
+| `-c` value | Meaning |
+| ---------- | ------- |
+| `langgenius` | Distributed on behalf of Dify (langgenius) |
+| `partner` | Distributed on behalf of an official partner |
+| `community` | Distributed by a community developer |
+
+**Decide it solely from the plugin's `author` field in `manifest.yaml`:**
+
+| Plugin's `author` | Required `-c` | Consequence of getting it wrong |
+| ----------------- | ------------- | ------------------------------- |
+| `langgenius` | `-c langgenius` | Daemon refuses to install: `unauthorized langgenius plugin` |
+| Anything else (e.g. `yourname`) | `-c community` | Normally no impact on installation |
+
+The rule: **if the plugin claims to be official, you must sign with `langgenius`; otherwise use
+`community`.** This comes from the daemon's `isUnauthorizedLanggenius()` — an `author` of
+`langgenius` without a `langgenius`-category signature is treated as impersonating the official
+identity.
+
+For example, this repo's test plugin `langgenius-deepseek` has `author: langgenius`, so:
+
+```bash
+grep '^author:' manifest.yaml     # check first; prints author: langgenius
+dify signature sign xxx.difypkg -p mykey.private.pem -c langgenius
+```
+
+##### 1.2.3 Hand the public key to the daemon
+
+Place it in the mounted directory first (`plugin_daemon`'s `./volumes/plugin_daemon` is mounted at
+`/app/storage` inside the container):
+
+```bash
+mkdir -p docker/volumes/plugin_daemon/public_keys
+cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
+```
+
+Then enable the feature in `docker-compose.override.yaml`:
 
 ```yaml
 services:
@@ -268,31 +310,21 @@ services:
       THIRD_PARTY_SIGNATURE_VERIFICATION_PUBLIC_KEYS: /app/storage/public_keys/mykey.public.pem
 ```
 
-Place the key in the mounted directory first (`plugin_daemon`'s `./volumes/plugin_daemon` is
-mounted at `/app/storage` inside the container):
-
 ```bash
-mkdir -p docker/volumes/plugin_daemon/public_keys
-cp mykey.public.pem docker/volumes/plugin_daemon/public_keys/
 docker compose up -d plugin_daemon
 ```
 
-About `-c`: the only valid values are `langgenius` / `partner` / `community`, meaning "authorized
-to distribute under which identity". If the plugin's `manifest.yaml` has `author: langgenius` you
-**must** use `-c langgenius`, otherwise the daemon rejects it as `unauthorized langgenius plugin`;
-use `-c community` for any other author.
-
-### Package size limit
+### 2. Package size limit
 
 Dify 1.17.0's api container defaults to `PLUGIN_MAX_PACKAGE_SIZE=52428800` (50 MB). Fine for
 single-arch packages; raise it if a `both` package exceeds it.
 
-### Front nginx
+### 3. Front nginx
 
 `413 Request Entity Too Large` means the nginx in front of Dify needs `client_max_body_size`
 greater than the package size, then reload.
 
-## FAQ
+## 12. FAQ
 
 **Why `manylinux2014` and `manylinux_2_28`?**
 Some packages (e.g. recent gevent releases) only publish `manylinux_2_28` wheels. The
@@ -301,7 +333,7 @@ official plugin-daemon image is Ubuntu 24.04 (glibc 2.39), which runs both.
 **Do I need the official Dify CLI?**
 No for building — repackaging only needs Python's `zipfile` + `pip download`. It is required for
 packaging a plugin from source code, and for *self-signing*. Without it, use Option A in
-[Installing on the offline server](#installing-on-the-offline-server) instead.
+[Installing on the offline server](#11-installing-on-the-offline-server) instead.
 
 **Why is the SHA256 identical on every re-run?**
 Zip entries use fixed timestamps and sorted order, so identical content produces identical
@@ -314,7 +346,7 @@ are stored once. A typical model-provider plugin goes from ~13 MB (single arch) 
 **Can I use an internal mirror (Nexus/Artifactory)?**
 Yes: `--pip-index-url http://<mirror>/pypi/simple`.
 
-## Project structure
+## 13. Project structure
 
 ```
 .
@@ -329,14 +361,14 @@ Yes: `--pip-index-url http://<mirror>/pypi/simple`.
 └── LICENSE
 ```
 
-## Disclaimer
+## 14. Disclaimer
 
 This is a community tool, **not affiliated with or endorsed by langgenius / Dify**.
 "Dify" and related marks belong to their respective owners. The README layout and badge
 style are inspired by the [official Dify repository](https://github.com/langgenius/dify) —
 thanks to the Dify team.
 
-## Star history
+## 15. Star history
 
 <a href="https://star-history.com/#zmxccxy/dify-plugin-build-offline-package&date">
   <picture>
@@ -346,6 +378,6 @@ thanks to the Dify team.
   </picture>
 </a>
 
-## License
+## 16. License
 
 [MIT](LICENSE)
